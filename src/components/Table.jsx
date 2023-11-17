@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import AddForm from './AddForm';
+import Search from './Search';
 
 function Table() {
   const [data, setData] = useState([]);
+  const [search, setSearch]= useState([])
 
   useEffect(() => {
     axios.get("https://northwind.vercel.app/api/products").then(res =>
-      setData(res.data)
+  {
+    setData(res.data)
+    setSearch(res.data)
+  }
     );
   }, []);
 
   const handleDelete = (id) => {
-    let target=data.find(data=>data.id==id)
-    let indexOfTarget=data.indexOf(target)
-    data.splice(indexOfTarget,1)
-    setData([...data])
-  };
+    axios.delete(`https://northwind.vercel.app/api/products/${id}`).then((res)=>{
+      setData((prev)=>prev.filter(data=>data.id !== id))
+    })
 
+
+  };
   return (
-    <div className='table'>
+
+<>
+<Search data={data} search={search} setSearch={setSearch} />
+<AddForm data={data}  setData={setData} />
+
+<div className='table'>
       <table className='table_products'>
         <thead>
           <tr>
@@ -30,7 +40,7 @@ function Table() {
           </tr>
         </thead>
         <tbody>
-          {data.map((myDatas) => (
+          {search.map((myDatas) => (
             <tr key={myDatas.id}>
               <td>{myDatas.id}</td>
               <td>{myDatas.name}</td>
@@ -43,6 +53,8 @@ function Table() {
         </tbody>
       </table>
     </div>
+
+</>
   );
 }
 
